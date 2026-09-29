@@ -111,20 +111,39 @@ end function;
 
 MyThreeDescent_dedup := function(Crv3, map3)
     P<x1,x2,x3> := PolynomialRing(Rationals(), 3);
-    seen_pols := {@ P | @};
-    
+    // the four "diagonal sign" substitutions (identity + three)
+    subs := [[x1,x2,x3], [x1,-x2,-x3], [-x1,x2,-x3], [-x1,-x2,x3]];
+    homs := [hom<P -> P | s> : s in subs];
+
+    kept_pols := [P | ];
+    kept_mods := [];          // GenusOneModel cache for the fallback
     Crv3_real := [];
     map3_real := [];
-    
+
     for i in [1..#Crv3] do
-        poly := P ! DefiningPolynomial(Crv3[i]);
-        if poly notin seen_pols then
-            Include(~seen_pols, poly);
+        f := P ! DefiningPolynomial(Crv3[i]);
+        dup := false;
+        // fast test: equal to a kept cover up to a sign substitution and overall sign
+        for g in kept_pols do
+            for h in homs do
+                if f eq h(g) or f eq -h(g) then dup := true; break; end if;
+            end for;
+            if dup then break; end if;
+        end for;
+        // slow fallback: general equivalence over Q (only for survivors)
+        if not dup then
+            M := GenusOneModel(f);
+            for M2 in kept_mods do
+                if IsEquivalent(M, M2) then dup := true; break; end if;
+            end for;
+        end if;
+        if not dup then
+            Append(~kept_pols, f);
+            Append(~kept_mods, GenusOneModel(f));
             Append(~Crv3_real, Crv3[i]);
             map3_real := map3_real cat [map3[i]];
         end if;
     end for;
-    
     return Crv3_real, map3_real;
 end function;
 
@@ -164,7 +183,7 @@ ComputeGeneratorTS := function(number, isogenous, reg : TwoPowerDescOnly:=false,
     if descent_no eq 0 then
         if (TwoPowerDescOnly and reg lt 135) or (not TwoPowerDescOnly and reg lt 120) then 
             descent_no := 4;
-        elif reg lt 240 and not TwoPowerDescOnly then 
+        elif reg lt 270 and not TwoPowerDescOnly then 
             descent_no := 6;
         elif reg lt 480 and not NoEightDesc then
             descent_no := 8;
@@ -217,7 +236,7 @@ ComputeGeneratorTS := function(number, isogenous, reg : TwoPowerDescOnly:=false,
             P6 := [];
             index_2 := 1;
             index_3 := 1;
-            bound := Max(10^2, Max(Round(10^(reg / 24 + 1)), Round(10^(reg / 20))));
+            bound := Max(10^2, Round(10^(reg / 25 + 1)));
             flag := false;
             while #P6 eq 0 do
                 if index_2 gt #HyperE then
@@ -369,22 +388,24 @@ ComputeGeneratorTS := function(number, isogenous, reg : TwoPowerDescOnly:=false,
     E_orig := mkc(number);
     P_final := Saturation([E_orig ! P_orig], 1000 : TorsionFree := true)[1];
     print "-----------------------------------------";
-    print "Verification status:", P_final in E_orig;
     print "True Canonical Height on E_", number, ":", CanonicalHeight(P_final);
+    print "Ratio against BSD-predicted regulator:", RealField(15)!(CanonicalHeight(P) / reg);
     print "-----------------------------------------";
     return Eltseq(P_final)[1..2];
 end function;
+Sha4Order := function(N)
+    p := Valuation(N, 2);
+    m := N div 2^p;
+    q := Ilog(2, m + 1);
+    error if 2^q ne m + 1,
+        Sprintf("#FourDescent = %o is not of the form 2^p*(2^q-1)", N);
+    error if q - 1 gt p or IsOdd(q - 1 - p),
+        Sprintf("(p,q) = (%o,%o) violates Cassels-Tate constraints", p, q);
+    return 2^(p + q - 1);
+end function;
 TSSize := function(number, isogenous)
     Sel4_size := #FourDescent(GetCurve(number, isogenous));
-    if Sel4_size eq 1 then
-        TS_order := 1;
-    elif Sel4_size eq 4 then
-        TS_order := 4;
-    elif Sel4_size eq 28 then
-        TS_order := 16;
-    else
-        error "Too many 4-covers (%o)!!!", Sel4_size;
-    end if;
+    TS_order := Sha4Order(Sel4_size);
     Crv3, mapA := MyThreeDescent(number, isogenous);
     if isogenous mod 3 eq 0 then
         TS_order := TS_order * (2 * #Crv3 + 1) / 3;
@@ -483,7 +504,6 @@ ComputeGenerator := function(number, isogenous, descent_no : TwoPowerDescOnly:=t
         E_orig := mkc(number);
         P_final := Saturation([E_orig ! P_orig], 1000 : TorsionFree := true)[1];
         print "-----------------------------------------";
-        print "Verification status:", P_final in E_orig;
         print "True Canonical Height on E_", number, ":", CanonicalHeight(P_final);
         print "-----------------------------------------";
         return Eltseq(P_final)[1..2];
@@ -498,7 +518,7 @@ ComputeGenerator := function(number, isogenous, descent_no : TwoPowerDescOnly:=t
     printf "Tate-Shafarevich group has order %o\n", TS_order;
     if MaxReg ne 0 and reg gt MaxReg then
         printf "Regulator too large; aborting\n";
-        return [];
+        return [reg, TS_order];
     end if;
     HyperE := MyTwoDescent(E);
     return ComputeGeneratorTS(number, isogenous, reg : TwoPowerDescOnly:=(Valuation(TS_order, 3) gt 0), NoEightDesc:=NoEightDesc, \
@@ -700,15 +720,6 @@ ComputeGeneratorFull := function(number, isogenous, rank : known_gens:=[], TwoPo
     printf "Found rational point %o\n", Eltseq(P)[1..2];
     gens := Saturation(gens cat [P], 1000 : TorsionFree := true);
     return ComputeGeneratorFull(number, isogenous, rank : known_gens:=gens, TwoPowerDescOnly:=TwoPowerDescOnly, NoEightDesc:=NoEightDesc);
-end function;
-
-Check3 := function(number)
-    E := mkc3(number);
-    return Round(Sqrt(#ThreeDescentByIsogeny(E)));
-end function;
-
-CalcRank2 := function(varlist)
-    return ComputeGeneratorFull(varlist[1], varlist[2], 2 : known_gens:=[varlist[3]]);
 end function;
 
 SetMemoryLimit(2^31);
