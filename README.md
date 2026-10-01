@@ -44,13 +44,14 @@ $$
 ## Completeness
 - Range of the database: 1 - 100,000
 - Completed data: 76,411 / 100,000 (76.41%)
-- Saturated: 76,411,000 / 100,000 (76.41%)
+- Saturated: 76,411 / 100,000 (76.41%)
 - Verification against 2-Selmer group bounds: 5,000 / 100,000 (5.00%)
 
 ## File structure
 - [cubic.gp](cubic.gp): PARI/GP engine for rank bounds, isogeny mappings, and solution transformations.
 - [cubic_descent.m](cubic_descent.m): Magma script for higher-degree descents.
 - [cubic_db.txt](cubic_db.txt): The compiled dataset for $N \in [1,10^5]$.
+- [compress_point.cpp](compress_point.cpp): A script for compressing and decompressing the database. The dataset in the repo is compressed by this program.
 
 ## License
 - **Code:** GPL-3.0
