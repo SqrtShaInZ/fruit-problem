@@ -13,17 +13,17 @@ Approximately $65\%$ entries of the entire database were able to be filled compl
 618 [[-276/5041, 21215844/357911], []]
 ```
 
-Note that there might be extra "missing generators" due to $\mathrm{Sha}[2]$, because `ellrank` only computes the $2$-Selmer rank. To fix this problem, Magma's `ThreeDescent` rank bounding was used in the Sagemath script, together with `analytic_rank_upper_bound` with $\Delta=2.5$.
+Note that there might be extra "missing generators" due to $\mathrm{Sha}[2]$, because `ellrank` only computes the 2-Selmer rank. To fix this problem, Magma's `ThreeDescent` rank bounding was used in the Sagemath script, together with `analytic_rank_upper_bound` with $\Delta=2.5$.
 
-### $2$-Selmer Rank $\ge 4$
+### 2-Selmer Rank $\ge 4$
 
 Since very few curves in the whole database has rank $\ge 3$, all of them are processed manually (though lots of them already have no missing generators).
 
 There was a critical bug in the Sagemath script that caused many fake rank $\ge3$ curves to emerge due to inaccurate translation from PARI/GP. The bug was later fixed and all such indices have been rerun.
 
-### $2$-Selmer Rank $3$ with one missing generator
+### 2-Selmer Rank $3$ with one missing generator
 
-According to Cassels-Tate pairing, $\mathrm{Sha}$'s contribution to the $2$-Selmer rank must be an even number, hence the algebraic rank is $2$. One can verify in another way through root number, assuming the parity conjecture.
+According to Cassels-Tate pairing, $\mathrm{Sha}$'s contribution to the 2-Selmer rank must be an even number, hence the algebraic rank is $2$. One can verify in another way through root number, assuming the parity conjecture.
 
 `ComputeGeneratorFull` routine was used. Before that, the `best` function in PARI/GP script was used to determine the best curve based on the known generator and BSD formula. Note that `best` is only designed for Rank $2$
 
@@ -53,7 +53,7 @@ It is an adaptive algorithm like `MordellWeilShaInformation`. Specifically, it f
 
 It is recursive, which means it appends the newly found generator to `known_gens` parameter, then calls itself. The recursion boundary is `#known_gens==rank`, when all the generators are known, which then triggers saturation.
 
-### $2$-Selmer rank $3$ with two missing generators
+### 2-Selmer rank $3$ with two missing generators
 
 Suppose the entry is `n`.
 
@@ -72,7 +72,7 @@ When the snippet successfully executes, and the vector is $[0,0,0,0]$, the rank 
 
 There is one final pass that might prove the rank is $0$; it relies on the following lemma.
 
-> **Lemma.** $E(\mathbb{Q})$ is an elliptic curve with $E(\mathbb{Q})[2]\cong \mathbb{Z/2Z}$ and $2$-Selmer rank $3$. Let $\pi_2 : \mathrm{Sel}^{(2)}(E)\to\mathrm{Sel}^{(2)}(E)/E(\mathbb{Q})[2]$ be the quotient map, and the nonzero elements of this quotient are $\{HE_1,HE_2,HE_3\}$. The $4$-coverings $\{C4_{i,1},C4_{i,2}\}\sub \mathrm{Sel}^{(4)}(E)$ map to $HE_{i}$ under the projection $\pi : \mathrm{Sel}^{(4)}(E)\to\mathrm{Sel}^{(2)}(E)/E(\mathbb{Q})[2]$. If $C4_{i,1},C4_{i,2}$ are all elements of $\mathrm{Sha}(E)[4]$ for some $i\in[1,3]$, then $\mathrm{rank}(E(\mathbb{Q}))=0$.
+> **Lemma.** $E(\mathbb{Q})$ is an elliptic curve with $E(\mathbb{Q})[2]\cong \mathbb{Z/2Z}$ and 2-Selmer rank $3$. Let $\pi_2 : \mathrm{Sel}^{(2)}(E)\to\mathrm{Sel}^{(2)}(E)/E(\mathbb{Q})[2]$ be the quotient map, and the nonzero elements of this quotient are $\{HE_1,HE_2,HE_3\}$. The $4$-coverings $\{C4_{i,1},C4_{i,2}\}\sub \mathrm{Sel}^{(4)}(E)$ map to $HE_{i}$ under the projection $\pi : \mathrm{Sel}^{(4)}(E)\to\mathrm{Sel}^{(2)}(E)/E(\mathbb{Q})[2]$. If $C4_{i,1},C4_{i,2}$ are all elements of $\mathrm{Sha}(E)[4]$ for some $i\in[1,3]$, then $\mathrm{rank}(E(\mathbb{Q}))=0$.
 > 
 > **Proof.** From the exact sequence $0 \to E(\mathbb{Q})/2E(\mathbb{Q}) \to \text{Sel}^{(2)}(E) \to \text{Sha}(E)[2] \to 0$, we have:
 > 
@@ -101,7 +101,7 @@ Call `MordellWeilShaInformation` on each of the chosen curves.
 
 * When one call returns two generators, the process terminates; the full Mordell-Weil basis has been found.
 
-* When one call returns a generator, stop further `MordellWeilShaInformation` calls and use algorithms inside the "$2$-Selmer Rank $2$ with one missing generator" section.
+* When one call returns a generator, stop further `MordellWeilShaInformation` calls and use algorithms inside the "2-Selmer Rank $2$ with one missing generator" section.
 
 * When none of the calls return a generator, run `ellanalyticrank`.
   
@@ -109,7 +109,7 @@ Call `MordellWeilShaInformation` on each of the chosen curves.
   
   * If the rank is confirmed to be $2$, continue with higher descent methods. `ellanalyticrank` also provides a clear view of the regulator, combined with known information of $\mathrm{Sha}$ from $4$-descent.
 
-### $2$-Selmer rank $2$ with no known generators
+### 2-Selmer rank $2$ with no known generators
 
 First, the best curve is determined using BSD formula again (there is a dedicated function `BSDTermsEasyQ`). $4$-descents are performed before a `ConjecturalRegulator` call. This preliminary $4$-descent acts as a filter that can solve around $25\%$ of the cases.
 
@@ -159,6 +159,40 @@ To accelerate 3-descent on curves admitting 3-isogenies, a custom pipeline (`MyT
 ### Saturation
 
 This is accomplished using PARI/GP's `ellsaturation` with bound $1000$. The saturated basis is then checked against BSD-predicted regulator (for Rank $1$ curves).
+
+### Additional aggregate data generation: Ruling out positive solutions for Rank $1$ curves via local solubility
+
+For curves with 2-Selmer rank $2$ where no generator was found (entries represented as `[[]]`), we can determine whether the curve is capable of generating positive integer solutions to the original equation $\frac x{y+z}+\frac y{z+x}+\frac z{x+y}=n$.
+
+Positive integer solutions require at last one generator $P = (x, y)$ to lie on the bounded component (the "egg", where $x < 0$). For odd $n$, it is known that no points on the egg can exist due to local obstructions at 2-adic and finite places. For even $n$, we check for the existence of egg points using 2-isogeny local solubility.
+
+#### Mathematical Principle
+
+For $E_n: y^2 = x^3 + Ax^2 + Bx$ with $A = 4n^2 + 12n - 3$ and $B = 32(n+3)$:
+1. A point $P = (x, y) \in E_n(\mathbb{Q})$ lies on the egg if and only if its 2-isogeny squareclass $d = \text{sqf}(\text{num}(x))$ is strictly negative ($d < 0$).
+2. The image of the 2-isogeny descent map $\alpha: E(\mathbb{Q}) \to \mathbb{Q}^*/(\mathbb{Q}^*)^2$ is restricted to squarefree divisors $d \mid B$.
+3. A negative squarefree divisor $d \mid B$ ($d < 0$) corresponds to a rational point on $E_n$ if and only if the associated hyperelliptic quartic curve:
+   $$C_d: w^2 = -dx^4 + A x^2 - \frac{B}{d} $$
+   has a rational point $(x, w)$.
+
+#### Local Solubility Verification
+
+We test whether $C_d$ is everywhere locally soluble ($\mathbb{R}$ and $\mathbb{Q}_p$ for all primes $p \mid 2B(A^2 - 4B)$).
+
+```magma
+CheckLocalSolubility := function(n)
+    P<x> := PolynomialRing(Rationals());
+    A := 4*n^2 + 12*n - 3;
+    B := 32*n + 96;
+    for d in Divisors(SquareFreeFactorization(B)) do
+        HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
+        if IsLocallySoluble(GenusOneModel(HyperE)) then
+            return true;
+        end if;
+    end for;
+    return false;
+end function;
+```
 
 ### Rooms for improvement
 

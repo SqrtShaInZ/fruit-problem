@@ -17,7 +17,8 @@ $$
 ## How is data computed
 - PARI/GP `ellrank` ([cubic.gp](cubic.gp)) is applied to those curves first.
 - For those curves where `ellrank` cannot determine the rank, Magma's higher descents ([cubic_descent.m](cubic_descent.m)) are used.
-- When the conducto- When the conductor is small, and analytic calculation is cheap, PARI/GP `ellheegner` is used to compute the generators.
+- When the conductor is small, and analytic calculation is cheap, PARI/GP `ellheegner` is used to compute the generators.
+- For some Rank $1$ curves with no known generators, local solubility check is performed so some cases can be confirmed to not have any positive integer solutions.
 
 ## Aggregate results
 
@@ -35,7 +36,7 @@ $$
 | Rank | $n\le 10^4$ | $n\le 10^5$ |
 |-:|:-:|:-:|
 |$0$|$0$|$0$|
-|$1$|$896+[0,5]$|$4875+[0,8215]$|
+|$1$|$896+[0,1]$|$5166+[0,2757]$|
 |$2$|$226$|$1397$|
 |$3$|$19$|$82$|
 |$4$|$0$|$2$|
