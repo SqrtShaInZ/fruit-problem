@@ -109,7 +109,7 @@ MyTwoDescent := function(E : RemoveGens:=[])
     return TDCT;
 end function;
 
-MyThreeDescent_dedup := function(Crv3, map3)
+MyThreeDescent_dedup := function(Crv3, map3 : CurveOnly:=false)
     P<x1,x2,x3> := PolynomialRing(Rationals(), 3);
     // the four "diagonal sign" substitutions (identity + three)
     subs := [[x1,x2,x3], [x1,-x2,-x3], [-x1,x2,-x3], [-x1,-x2,x3]];
@@ -141,10 +141,25 @@ MyThreeDescent_dedup := function(Crv3, map3)
             Append(~kept_pols, f);
             Append(~kept_mods, GenusOneModel(f));
             Append(~Crv3_real, Crv3[i]);
-            map3_real := map3_real cat [map3[i]];
+            if not CurveOnly then 
+                map3_real := map3_real cat [map3[i]];
+            end if;
         end if;
     end for;
     return Crv3_real, map3_real;
+end function;
+
+CheckLocalSolubility := function(n)
+    P<x> := PolynomialRing(Rationals());
+    A := 4*n^2 + 12*n - 3;
+    B := 32*n + 96;
+    for d in Divisors(SquareFreeFactorization(B)) do
+        HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
+        if IsLocallySoluble(GenusOneModel(HyperE)) then
+            return true;
+        end if;
+    end for;
+    return false;
 end function;
 
 MyThreeDescent := function(number, isogenous : NoMap:=false, HighRank:=false)
@@ -155,13 +170,6 @@ MyThreeDescent := function(number, isogenous : NoMap:=false, HighRank:=false)
     SetVerbose("Minimisation", 0);
     E := GetCurve(number, isogenous);
     E_phi := GetCurve(number, isogenous * 3);
-    if NoMap and not HighRank then
-        _, _, Crv3 := pIsogenyDescent(E_phi, 3);
-        if #Crv3 gt 0 then
-            SetVerbose("Minimisation", verb);
-            return Crv3;
-        end if;
-    end if;
     Crv3, map3, Crv3_phi, map3_phi, isog := ThreeIsogenyDescent(E);
     map3 := [m * DualIsogeny(isog) : m in map3];
     for i in [1..#Crv3_phi] do
