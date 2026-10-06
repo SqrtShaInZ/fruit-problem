@@ -24,6 +24,8 @@ $$
 - Verification against 2-Selmer group bounds: 5,000 / 10,000 (50.00%)
 - Navigate to the `100000` branch for data up to $n=10^5$
 
+## Aggregate results
+
 ### Rank distribution
 | Rank | $n\le 10^4$ | $n\le 10^5$ |
 |-:|:-:|:-:|
@@ -38,7 +40,7 @@ $$
 | Rank | $n\le 10^4$ | $n\le 10^5$ |
 |-:|:-:|:-:|
 |$0$|$0$|$0$|
-|$1$|$896+[0,5]$|$4875+[0,8215]$|
+|$1$|$896+[0,1]$|$5166+[0,2757]$|
 |$2$|$226$|$1397$|
 |$3$|$19$|$82$|
 |$4$|$0$|$2$|
@@ -49,7 +51,6 @@ $$
 - [cubic_descent.m](cubic_descent.m): Magma script for higher-degree descents.
 - [cubic_db.txt](cubic_db.txt): The compiled dataset for $N \in [1,10^4]$.
 - [compress_point.cpp](compress_point.cpp): A script for compressing and decompressing the database. The dataset in the repo is compressed by this program.
-o is compressed by this program.
 
 ## License
 - **Code:** GPL-3.0
