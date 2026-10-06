@@ -19,6 +19,7 @@ $$
 - For those curves where `ellrank` cannot determine the rank, Magma's higher descents ([cubic_descent.m](cubic_descent.m)) are used.
 - When the conductor is small, and analytic calculation is cheap, PARI/GP `ellheegner` is used to compute the generators.
 - For some Rank $1$ curves with no known generators, local solubility check is performed so some cases can be confirmed to not have any positive integer solutions.
+- Refer to [methods.md](methods.md) for more detailed information.
 
 ## Aggregate results
 
