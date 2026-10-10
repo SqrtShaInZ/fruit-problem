@@ -23,7 +23,7 @@ $$
 
 ## Aggregate results
 
-## Graph
+### Graph
 ![graph](fruit_problem_density.png)
 
 It can be shown that the density of solvable Fruit Problem equations scale cleanly with $\frac{n}{\ln n}$. This shows a potential connection to the distribution of primes.
