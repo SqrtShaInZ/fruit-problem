@@ -66,10 +66,30 @@ check_pos(n,P)=x=P[1];return(x<-4*(n+3)/(n+2)&&x^2+4*n*(n+3)*x+16*(n+3)^2>0);
 solve_from_point(n,Preal,height_only=0)=if(Preal[1]>0,return([]));local(E,now_prec,P,tors,mul,P2,nowP);E=mkc(n);ellheight(E,Preal);now_prec=max(round(n*log(n)),default(realprecision));\
 tors=gettors(E,6);mul=1;warning("Initial precision: ",now_prec);while(1,localprec(now_prec);P=Preal*1.0;nowP=P;P2=ellmul(E,P,2);mul=1;while(mul<now_prec*2/3,\
 if(check_pos(n,nowP),break);if(check_pos(n,elladd(E,nowP,tors)),mul=-mul;break);mul=mul+2;nowP=elladd(E,nowP,P2);if(mul%100==99,print1(".")));if(abs(mul)>=now_prec*2/3,\
-now_prec=round(now_prec*log(n));warning("recalculating with precision "now_prec),break));add_tors=mul<0;mul=abs(mul);print1(mul,"*P");if(add_tors,print1("+tors"));\
-localprec(38);h=3/2*ellheight(E,Preal)*mul^2-4*log(n)-9;print(" gives a positive solution, height>",h,", decimal digits>",h/log(10));if(height_only>=1,return(h));\
-Preal=ellmul(E,Preal,mul);if(add_tors,return(getxyz(n,elladd(E,Preal,tors))),return(getxyz(n,Preal)));
-solvexyz(n,height_only=0)=local(E,gens);if(n%2==1,return([]));E=mkc(n);gens=findgen(n);if(#gens==0,return([]));if(#gens>1,error("Not yet implemented"));return(solve_from_point(n,gens[1],height_only));
+now_prec=round(now_prec*log(n));warning("recalculating with precision "now_prec),break));if(height_only<=-1,return(mul));add_tors=mul<0;mul=abs(mul);\
+print1(mul,"*P");if(add_tors,print1("+tors"));localprec(38);h=3/2*ellheight(E,Preal)*mul^2-4*log(n)-9;print(" gives a positive solution, height>",h,", decimal digits>",h/log(10));\
+if(height_only>=1,return(h));Preal=ellmul(E,Preal,mul);if(add_tors,return(getxyz(n,elladd(E,Preal,tors))),return(getxyz(n,Preal)));
+find_j_range(i,h1,h2,pr,max_height)=my(a,b,c,d);a=h2;b=2*i*pr;c=i^2*h1-max_height;d=b^2-4*a*c;if(d<0,return([1,-1]));d=sqrt(d);return([ceil((-b-d)/(2*a)),floor((-b+d)/(2*a))]);
+solve_from_two_egg_point(n,P1,P2,height_only=0)=my(E,mul1,mul2,h1,h2,pr,max_height,prec,i,j,cur_height,win_i,win_j,tors,P1R,iP1R,P2R);\
+E=mkc(n);mul1=solve_from_point(n,P1,-1);mul2=solve_from_point(n,P2,-1);h1=ellheight(E,P1);h2=ellheight(E,P2);pr=ellheight(E,P1,P2);\
+max_height=min(h1*mul1^2,h2*mul2^2);prec=min(abs(mul1),abs(mul2));localprec(prec);warning("precision: ",prec);P1R=P1*1.0;P2R=P2*1.0;win_i=0;win_j=0;tors=0;\
+if(abs(max_height-h1*mul1^2)<10^-8,win_i=mul1;if(mul1<0,tors=1;win_i=-win_i;mul1=-mul1),win_j=mul2;if(mul2<0,tors=1;win_j=-win_j;mul2=-mul2));\
+for(i=1,mul1-1,if(i==0,continue);iP1R=ellmul(E,P1R,i);jrange=find_j_range(i,h1,h2,pr,max_height);for(j=jrange[1],jrange[2],if(j==0||(i+j)%2==0,continue);\
+cur_height=i^2*h1+j^2*h2+2*i*j*pr;target=elladd(E,iP1R,ellmul(E,P2R,j));if(check_pos(n,target),warning("New best point found with (i,j,tors)=(",i,",",j,",0)");\
+max_height=cur_height;win_i=i;win_j=j;tors=0);target=elladd(E,target,[0,0]);if(check_pos(n,target),warning("New best point found with (i,j,tors)=(",i,",",j,",1)");\
+max_height=cur_height;win_i=i;win_j=j;tors=1)));if(height_only>=1,return(win_i^2*h1+win_j^2*h2+2*win_i*win_j*pr));if(height_only<=-1,return([win_i,win_j,tors]));\
+P=elladd(E,ellmul(E,P1,win_i),ellmul(E,P2,win_j));if(tors==1,return(getxyz(n,elladd(E,P,[0,0]))),return(getxyz(n,P)));
+solve_from_egg_and_unbounded_point(n,P1,P2,height_only=0)=my(E,mul1,i,j,win_i,win_j,tors,P1R,P2R,max_height,cur_height);E=mkc(n);mul1=solve_from_point(n,P1,-1);\
+win_i=abs(mul1);win_j=0;tors=mul1<0;h1=ellheight(E,P1);h2=ellheight(E,P2);pr=ellheight(E,P1,P2);max_height=h1*mul1^2;localprec(win_i);warning("precision: ",win_i);\
+P1R=P1*1.0;P2R=P2*1.0;forstep(i=1,mul1,2,iP1R=ellmul(E,P1R,i);jrange=find_j_range(i,h1,h2,pr,max_height);for(j=jrange[1],jrange[2],if(j==0,continue);\
+cur_height=i^2*h1+j^2*h2+2*i*j*pr;target=elladd(E,iP1R,ellmul(E,P2R,j));if(check_pos(n,target),warning("New best point found with (i,j,tors)=(",i,",",j,",0)");\
+max_height=cur_height;win_i=i;win_j=j;tors=0);target=elladd(E,target,[0,0]);if(check_pos(n,target),warning("New best point found with (i,j,tors)=(",i,",",j,",1)");\
+max_height=cur_height;win_i=i;win_j=j;tors=1)));if(height_only>=1,return(win_i^2*h1+win_j^2*h2+2*win_i*win_j*pr));if(height_only<=-1,return([win_i,win_j,tors]));\
+P=elladd(E,ellmul(E,P1,win_i),ellmul(E,P2,win_j));if(tors==1,return(getxyz(n,elladd(E,P,[0,0]))),return(getxyz(n,P)));
+solve_from_two_point(n,P1,P2,height_only=0)=if(P1[1]>0,if(P2[1]<0,return(solve_from_egg_and_unbounded_point(n,P2,P1,height_only)),return([])),\
+if(P2[1]<0,return(solve_from_two_egg_point(n,P1,P2,height_only)),return(solve_from_egg_and_unbounded_point(n,P1,P2,height_only))));
+solvexyz(n,height_only=0)=local(E,gens);if(n%2==1,return([]));E=mkc(n);gens=findgen(n);if(#gens==0,return([]));if(#gens>2,error("Not yet implemented"));\
+if(#gens==2,gens=ellsaturation(E,gens,1000);return(solve_from_two_point(n,gens[1],gens[2],height_only)));return(solve_from_point(n,gens[1],height_only));
 prepare_db(lb=1,ub=10000,limit=-5*10^5)=local(i,gens);for(i=lb,ub,print("finding generator for ",i);gens=findgen_worker(i,limit);write("cubic_db.txt",i," ",gens));
 prepare_db_list(lst,limit=-5*10^5)=local(i,gens,n);for(i=1,#lst,n=lst[i];print("finding generator for ",n);gens=findgen_worker(n,limit);print("Generators of E_n: ",gens));
 \\ grep -E -x '[0-9]+ \[\[\]\]' cubic_db.txt
