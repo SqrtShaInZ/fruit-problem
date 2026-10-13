@@ -437,8 +437,8 @@ end function;
 
 ComputeGeneratorTrial := function(number, isogenous)
     E := GetCurve(number, isogenous);
-    HyperE := MyTwoDescent(E)[1];
-    Crv4 := FourDescent(HyperE : RemoveTorsion);
+    HyperE := MyTwoDescent(E);
+    Crv4 := &cat[FourDescent(HE : RemoveTorsion) : HE in HyperE];
     for C4 in Crv4 do
         P4 := PointsQI(C4, 10^7 : OnlyOne);
         if #P4 gt 0 then
@@ -454,9 +454,14 @@ ComputeGeneratorTrial := function(number, isogenous)
     flag := false;
     while #P6 eq 0 do
         if index_3 gt #Crv3 then break; end if;
-        Crv, map6to3 := SixDescent(HyperE, Crv3[index_3]);
-        P6 := PointSearch(Crv, 10^8 : OnlyOne := true);
+        while #P6 eq 0 do
+            if index_2 gt #HyperE then break; end if;
+            Crv, map6to3 := SixDescent(HyperE[index_2], Crv3[index_3]);
+            P6 := PointSearch(Crv, 10^8 : OnlyOne := true);
+            index_2 := index_2 + 1;
+        end while;
         index_3 := index_3 + 1;
+        index_2 := 1;
     end while;
     if #P6 gt 0 then
         winning_index := index_3 - 1;
