@@ -42,7 +42,7 @@ It can be shown that the density of solvable Fruit Problem equations scale clean
 | Rank | $n\le 10^4$ | $n\le 10^5$ |
 |-:|:-:|:-:|
 |$0$|$0$|$0$|
-|$1$|$896+[0,1]$|$6314+[0,1159]$|
+|$1$|$896+[0,1]$|$6332+[0,1131]$|
 |$2$|$226$|$1397$|
 |$3$|$19$|$82$|
 |$4$|$0$|$2$|
@@ -50,8 +50,8 @@ It can be shown that the density of solvable Fruit Problem equations scale clean
 
 ## Completeness
 - Range of the database: 1 - 100,000
-- Completed data: 94,579 / 100,000 (94.58%)
-- Saturated: 94,579 / 100,000 (94.58%)
+- Completed data: 94,725 / 100,000 (94.73%)
+- Saturated: 94,725 / 100,000 (94.73%)
 - Verification against 2-Selmer group bounds: 5,000 / 100,000 (5.00%)
 
 ## File structure
