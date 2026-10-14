@@ -7,10 +7,11 @@ CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
+    d4flag := #TwoSelmerGroup(mkc(n)) gt 4;
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
-        if IsLocallySoluble(GenusOneModel(HyperE)) and #FourDescent(HyperE) gt 0 then
-            return true;
+        if IsLocallySoluble(GenusOneModel(HyperE)) then
+            return (not d4flag) or (#FourDescent(HyperE) gt 0);
         end if;
     end for;
     return false;
