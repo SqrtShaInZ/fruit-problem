@@ -149,14 +149,16 @@ MyThreeDescent_dedup := function(Crv3, map3 : CurveOnly:=false)
     return Crv3_real, map3_real;
 end function;
 
+// Only for rank 1
 CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
+    d4flag := #TwoSelmerGroup(mkc(n)) gt 4; // nontrivial Sha[2]
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
         if IsLocallySoluble(GenusOneModel(HyperE)) then
-            return true;
+            return (not d4flag) or (#FourDescent(HyperE) gt 0);
         end if;
     end for;
     return false;
