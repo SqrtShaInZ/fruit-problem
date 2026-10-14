@@ -19,7 +19,7 @@ $$
 - For those curves where `ellrank` cannot determine the rank, Magma's higher descents ([cubic_descent.m](cubic_descent.m)) are used.
 - When the conductor is small, and analytic calculation is cheap, PARI/GP `ellheegner` is used to compute the generators.
 - Refer to [methods.md](methods.md) for more detailed information regarding descents.
-- For some Rank $1$ curves whose generators cannot be found, local solubility check is performed so some $n$ can be confirmed to not have any positive integer solutions. Refer to ([rank_counter.py](rank_counter.py)) for more detailed information.
+- For some Rank $1$ curves whose generators cannot be found, local solubility check is performed so some $n$ can be confirmed to not have any positive integer solutions. [methods.md](methods.md) also contains information regarding this.
 
 ## Aggregate results
 

@@ -3,22 +3,26 @@ from fractions import Fraction
 import re, sys
 from sage.all import magma
 magma.eval('''
+SetClassGroupBounds("GRH");
 CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
-    d4flag := #TwoSelmerGroup(mkc(n)) gt 4;
+    d4flag := (#TwoSelmerGroup(EllipticCurve([0, A, 0, B, 0])) gt 4) or (#TwoSelmerGroup(EllipticCurve([0, 2*A, 0, A^2-4*B, 0])) gt 4);
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
         if IsLocallySoluble(GenusOneModel(HyperE)) then
-            return (not d4flag) or (#FourDescent(HyperE) gt 0);
+            if not d4flag then return 2; end if;
+            if #FourDescent(HyperE) gt 0 then return 1; end if;
         end if;
     end for;
-    return false;
+    return 0;
 end function;
 ''')
 def check_curve(n):
-    return bool(magma.CheckLocalSolubility(n))
+    if n % 2 == 1:
+        return 0
+    return int(magma.CheckLocalSolubility(n))
 filename = input("Database file: ").strip()
 N = int(input("Number of lines: "))
 def extract_bracket_block(s):
@@ -125,11 +129,15 @@ with open(filename, "r") as f:
         if rank == 1:
             if block == "[[]]":
                 generator_not_found += 1
-                if n % 2 == 0 and check_curve(n):
-                    rank1_potential_solution += 1
-                else:
-                    rank1_definite_no_solution += 1
-                continue
+                match check_curve(n):
+                    case 0:
+                        rank1_definite_no_solution += 1
+                    case 1:
+                        rank1_potential_solution += 1
+                    case 2:
+                        rank1_definite_solution += 1
+                    case _:
+                        raise ValueError("check_curve returned something malicious!")
             xs = get_x_values(block)
             if any(x < 0 for x in xs):
                 rank1_definite_solution += 1

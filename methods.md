@@ -179,18 +179,24 @@ For $E_n: y^2 = x^3 + Ax^2 + Bx$ with $A = 4n^2 + 12n - 3$ and $B = 32(n+3)$:
 
 We test whether $C_d$ is everywhere locally soluble ($\mathbb{R}$ and $\mathbb{Q}_p$ for all primes $p \mid 2B(A^2 - 4B)$).
 
+#### Definite proof of points on eggs
+
+In lots of cases the $2$-primary part of the Tate-Shafarevich group of both the curve and the $2$-isogenous curve ($\mathrm{Sha}[2](E/\mathbb{Q})$ and $\mathrm{Sha}[2](E'/\mathbb{Q})$) are trivial. We can verify them by checking that the dimension of the $\phi$-Selmer group is $3$, or alternatively the sum of dimension of $2$-Selmer groups of $E$ and $E'$ is $4$. The direct consequence is that every negative $d$ that generates a locally soluble $\phi$-cover must generate a point on the egg. Therefore these $n$ only need local solubility checks to guarantee a point on the egg, without the need of heavy descents.
+
 ```magma
 CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
+    d4flag := (#TwoSelmerGroup(EllipticCurve([0, A, 0, B, 0])) gt 4) or (#TwoSelmerGroup(EllipticCurve([0, 2*A, 0, A^2-4*B, 0])) gt 4);
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
         if IsLocallySoluble(GenusOneModel(HyperE)) then
-            return true;
+            if not d4flag then return 2; end if;
+            if #FourDescent(HyperE) gt 0 then return 1; end if;
         end if;
     end for;
-    return false;
+    return 0;
 end function;
 ```
 

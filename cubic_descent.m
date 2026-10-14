@@ -154,14 +154,15 @@ CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
-    d4flag := #TwoSelmerGroup(mkc(n)) gt 4; // nontrivial Sha[2]
+    d4flag := (#TwoSelmerGroup(EllipticCurve([0, A, 0, B, 0])) gt 4) or (#TwoSelmerGroup(EllipticCurve([0, 2*A, 0, A^2-4*B, 0])) gt 4);
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
         if IsLocallySoluble(GenusOneModel(HyperE)) then
-            return (not d4flag) or (#FourDescent(HyperE) gt 0);
+            if not d4flag then return 2; end if;
+            if #FourDescent(HyperE) gt 0 then return 1; end if;
         end if;
     end for;
-    return false;
+    return 0;
 end function;
 
 MyThreeDescent := function(number, isogenous : NoMap:=false, HighRank:=false)
