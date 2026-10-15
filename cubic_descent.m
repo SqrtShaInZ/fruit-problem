@@ -154,7 +154,7 @@ CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
-    d4flag := (#TwoSelmerGroup(EllipticCurve([0, A, 0, B, 0])) gt 4) or (#TwoSelmerGroup(EllipticCurve([0, 2*A, 0, A^2-4*B, 0])) gt 4);
+    d4flag := TwoPowerIsogenyDescentRankBound(EllipticCurve([0, A, 0, B, 0]) : MaxSteps:=1) gt 1;
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
         if IsLocallySoluble(GenusOneModel(HyperE)) then

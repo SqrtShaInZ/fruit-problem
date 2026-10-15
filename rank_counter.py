@@ -1,14 +1,17 @@
 from collections import Counter
 from fractions import Fraction
 import re, sys
-from sage.all import magma
+from sage.all import magma, EllipticCurve
+def mkc(n):
+    return EllipticCurve([0, 4*n**2 + 12*n - 3, 0, 32*n + 96, 0])
 magma.eval('''
 SetClassGroupBounds("GRH");
+SetVerbose("FourDescent", 1);
 CheckLocalSolubility := function(n)
     P<x> := PolynomialRing(Rationals());
     A := 4*n^2 + 12*n - 3;
     B := 32*n + 96;
-    d4flag := (#TwoSelmerGroup(EllipticCurve([0, A, 0, B, 0])) gt 4) or (#TwoSelmerGroup(EllipticCurve([0, 2*A, 0, A^2-4*B, 0])) gt 4);
+    d4flag := TwoPowerIsogenyDescentRankBound(EllipticCurve([0, A, 0, B, 0]) : MaxSteps:=1) gt 1;
     for d in Divisors(SquareFreeFactorization(B)) do
         HyperE := HyperellipticCurve(-d*x^4 + A*x^2 - B/d);
         if IsLocallySoluble(GenusOneModel(HyperE)) then
@@ -125,6 +128,10 @@ with open(filename, "r") as f:
             invalid += 1
             continue
         rank = get_rank(block)
+        if (-1)**rank != mkc(n).root_number():
+            print(f'Missing generator: {line}')
+            invalid += 1
+            continue
         rank_count[rank] += 1
         if rank == 1:
             if block == "[[]]":
@@ -133,6 +140,7 @@ with open(filename, "r") as f:
                     case 0:
                         rank1_definite_no_solution += 1
                     case 1:
+                        print(f'potential n found: {n}')
                         rank1_potential_solution += 1
                     case 2:
                         rank1_definite_solution += 1
