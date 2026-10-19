@@ -8,7 +8,7 @@ $$
 y^2=x^3+(4n^2+12n-3)x^2+32(n+3)x
 $$
 
-thus providing non-trivial solutions to the fruit problem
+as described in [1], thus providing non-trivial solutions to the fruit problem
 
 $$
 \frac{a}{b+c}+\frac{b}{a+c}+\frac{c}{a+b}=n
@@ -59,3 +59,6 @@ It can be shown that the density of solvable Fruit Problem equations scale clean
 - [cubic_descent.m](cubic_descent.m): Magma script for higher-degree descents.
 - [cubic_db.txt](cubic_db.txt): The compiled dataset for $N \in [1,10^5]$.
 - [compress_point.cpp](compress_point.cpp): A script for compressing and decompressing the database. The dataset in the repo is compressed by this program.
+
+## References
+1. A. Bremner and A.J. Macleod, _An unusual cubic representation problem_, Annales Math. et Inform. **43** (2014), 29-41.
